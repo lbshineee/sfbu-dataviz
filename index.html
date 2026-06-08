@@ -1,184 +1,227 @@
-```html
 <!DOCTYPE html>
 <html>
-
 <head>
-  <meta charset="utf-8">
-  <title>SFBU VR Data Visualization</title>
+<meta charset="utf-8">
+<title>SFBU VR DataViz</title>
 
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://unpkg.com/aframe-look-at-component@latest/dist/aframe-look-at-component.min.js"></script>
 
-  <script src="https://unpkg.com/aframe-look-at-component@latest/dist/aframe-look-at-component.min.js"></script>
+<script>
+AFRAME.registerComponent('csv-bars', {
+  async init() {
 
-  <script>
-    AFRAME.registerComponent('csv-bars', {
-      init: async function () {
+    const response = await fetch('./data/courses.csv');
+    const text = await response.text();
 
-        const response = await fetch('./data/courses.csv');
+    const rows = text.trim().split('\n');
 
-        if (!response.ok) {
-          console.error("Could not load CSV");
-          return;
-        }
+    rows.slice(1).forEach((row, i) => {
 
-        const text = await response.text();
+      const cols = row.split(',');
 
-        const rows = text.trim().split('\n');
+      const course = cols[0];
+      const value = parseFloat(cols[1]);
 
-        rows.slice(1).forEach((row, i) => {
+      const height = value / 20;
 
-          const cols = row.split(',');
+      const bar = document.createElement('a-box');
 
-          const course = cols[0];
-          const value = parseFloat(cols[1]);
+      bar.setAttribute(
+        'position',
+        `${i * 2} ${height / 2} 0`
+      );
 
-          const chart = this.el;
+      bar.setAttribute('height', height);
+      bar.setAttribute('width', 1);
+      bar.setAttribute('depth', 1);
 
-          // Scale enrollment values into VR-friendly heights
-          const height = value / 20;
+      bar.setAttribute(
+        'color',
+        `hsl(${i * 35},70%,60%)`
+      );
 
-          // ---------- BAR ----------
+      this.el.appendChild(bar);
 
-          const bar = document.createElement('a-box');
+      const courseLabel =
+        document.createElement('a-text');
 
-          bar.setAttribute(
-            'position',
-            `${i * 2} ${height / 2} 0`
-          );
+      courseLabel.setAttribute(
+        'value',
+        course
+      );
 
-          bar.setAttribute('width', 1);
-          bar.setAttribute('depth', 1);
-          bar.setAttribute('height', height);
+      courseLabel.setAttribute(
+        'position',
+        `${i * 2} 0.4 0.8`
+      );
 
-          bar.setAttribute(
-            'color',
-            `hsl(${i * 35},70%,60%)`
-          );
+      courseLabel.setAttribute(
+        'scale',
+        '1.5 1.5 1.5'
+      );
 
-          chart.appendChild(bar);
+      courseLabel.setAttribute(
+        'look-at',
+        '#camera'
+      );
 
-          // ---------- VALUE LABEL ----------
+      courseLabel.setAttribute(
+        'align',
+        'center'
+      );
 
-          const valueLabel =
-            document.createElement('a-text');
+      courseLabel.setAttribute(
+        'color',
+        '#111'
+      );
 
-          valueLabel.setAttribute(
-            'value',
-            value
-          );
+      this.el.appendChild(courseLabel);
 
-          valueLabel.setAttribute(
-            'position',
-            `${i * 2} ${height + 0.6} 0`
-          );
+      const valueLabel =
+        document.createElement('a-text');
 
-          valueLabel.setAttribute(
-            'align',
-            'center'
-          );
+      valueLabel.setAttribute(
+        'value',
+        value
+      );
 
-          valueLabel.setAttribute(
-            'color',
-            '#111'
-          );
+      valueLabel.setAttribute(
+        'position',
+        `${i * 2} ${height + 0.5} 0`
+      );
 
-          valueLabel.setAttribute(
-            'scale',
-            '2 2 2'
-          );
+      valueLabel.setAttribute(
+        'look-at',
+        '#camera'
+      );
 
-          valueLabel.setAttribute(
-            'look-at',
-            '#camera'
-          );
+      valueLabel.setAttribute(
+        'scale',
+        '2 2 2'
+      );
 
-          chart.appendChild(valueLabel);
+      valueLabel.setAttribute(
+        'align',
+        'center'
+      );
 
-          // ---------- COURSE LABEL ----------
+      valueLabel.setAttribute(
+        'color',
+        '#111'
+      );
 
-          const courseLabel =
-            document.createElement('a-text');
-
-          courseLabel.setAttribute(
-            'value',
-            course
-          );
-
-          courseLabel.setAttribute(
-            'position',
-            `${i * 2} 0.4 0.9`
-          );
-
-          courseLabel.setAttribute(
-            'align',
-            'center'
-          );
-
-          courseLabel.setAttribute(
-            'color',
-            '#222'
-          );
-
-          courseLabel.setAttribute(
-            'scale',
-            '1.5 1.5 1.5'
-          );
-
-          courseLabel.setAttribute(
-            'look-at',
-            '#camera'
-          );
-
-          chart.appendChild(courseLabel);
-        });
-      }
+      this.el.appendChild(valueLabel);
     });
-  </script>
+  }
+});
+
+AFRAME.registerComponent('chart-controller', {
+
+  init() {
+
+    const chart =
+      document.querySelector('#chart');
+
+    const rightHand =
+      document.querySelector('#rightHand');
+
+    let grabbing = false;
+
+    rightHand.addEventListener(
+      'triggerdown',
+      () => grabbing = true
+    );
+
+    rightHand.addEventListener(
+      'triggerup',
+      () => grabbing = false
+    );
+
+    this.tick = () => {
+
+      if (!grabbing) return;
+
+      const p =
+        rightHand.object3D.position;
+
+      chart.object3D.position.set(
+        p.x,
+        p.y,
+        p.z - 2
+      );
+    };
+
+    rightHand.addEventListener(
+      'abuttondown',
+      () => {
+
+        chart.object3D.scale.multiplyScalar(
+          1.2
+        );
+      }
+    );
+
+    rightHand.addEventListener(
+      'bbuttondown',
+      () => {
+
+        chart.object3D.scale.multiplyScalar(
+          0.8
+        );
+      }
+    );
+  }
+});
+</script>
 
 </head>
 
 <body>
 
-<a-scene>
+<a-scene chart-controller>
 
-  <!-- Sky -->
   <a-sky color="#ECECEC"></a-sky>
 
-  <!-- Ground -->
   <a-plane
-      rotation="-90 0 0"
-      width="100"
-      height="100"
-      color="#DDDDDD">
+    rotation="-90 0 0"
+    width="100"
+    height="100"
+    color="#DDDDDD">
   </a-plane>
 
-  <!-- Camera -->
+  <a-light
+    type="ambient"
+    intensity="1">
+  </a-light>
+
+  <a-light
+    type="directional"
+    intensity="0.8"
+    position="2 4 3">
+  </a-light>
+
   <a-entity position="0 1.6 8">
-      <a-camera id="camera"></a-camera>
+    <a-camera id="camera"></a-camera>
   </a-entity>
 
-  <!-- Lighting -->
-  <a-light
-      type="ambient"
-      intensity="1">
-  </a-light>
-
-  <a-light
-      type="directional"
-      intensity="0.8"
-      position="2 4 3">
-  </a-light>
-
-  <!-- Chart -->
   <a-entity
-      id="chart"
-      csv-bars
-      position="-6 0 -8">
+    id="leftHand"
+    laser-controls="hand: left">
+  </a-entity>
+
+  <a-entity
+    id="rightHand"
+    laser-controls="hand: right">
+  </a-entity>
+
+  <a-entity
+    id="chart"
+    csv-bars
+    position="-6 0 -8">
   </a-entity>
 
 </a-scene>
 
 </body>
 </html>
-```
-
