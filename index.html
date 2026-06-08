@@ -2,88 +2,116 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>SFBU VR Data Visualization</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<meta charset="utf-8">
+<title>SFBU VR Data Visualization</title>
+
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+<script>
+AFRAME.registerComponent('csv-bars', {
+  init: async function () {
+
+    const response = await fetch('./data/courses.csv');
+    const text = await response.text();
+
+    const rows = text.trim().split('\n');
+    const headers = rows[0].split(',');
+
+    const chart = this.el;
+
+    rows.slice(1).forEach((row, i) => {
+
+      const cols = row.split(',');
+
+      const course = cols[0];
+      const value = parseFloat(cols[1]);
+
+      const h = value / 20;
+
+      const bar = document.createElement('a-box');
+
+      bar.setAttribute('position', `${i * 2} ${h/2} 0`);
+      bar.setAttribute('height', h);
+      bar.setAttribute('width', 1);
+      bar.setAttribute('depth', 1);
+
+      bar.setAttribute('color',
+        `hsl(${i*35},70%,60%)`);
+
+      chart.appendChild(bar);
+
+      const label = document.createElement('a-text');
+
+      label.setAttribute('value', course);
+      label.setAttribute('align', 'center');
+      label.setAttribute('color', 'black');
+
+      label.setAttribute(
+        'position',
+        `${i*2} -0.5 0`
+      );
+
+      chart.appendChild(label);
+
+      const valueLabel =
+        document.createElement('a-text');
+
+      valueLabel.setAttribute(
+        'value',
+        value
+      );
+
+      valueLabel.setAttribute(
+        'align',
+        'center'
+      );
+
+      valueLabel.setAttribute(
+        'color',
+        'black'
+      );
+
+      valueLabel.setAttribute(
+        'position',
+        `${i*2} ${h+0.5} 0`
+      );
+
+      chart.appendChild(valueLabel);
+    });
+  }
+});
+</script>
+
 </head>
 
 <body>
+
 <a-scene>
 
-  <a-sky color="#87CEEB"></a-sky>
+  <a-sky color="#ECECEC"></a-sky>
 
-  <a-camera position="0 1.6 8"></a-camera>
-
-  <!-- Ground -->
   <a-plane
       rotation="-90 0 0"
-      width="30"
-      height="30"
+      width="100"
+      height="100"
       color="#DDDDDD">
   </a-plane>
 
-  <!-- Bar 1 -->
-  <a-box
-      position="-4 2 -6"
-      width="1"
-      depth="1"
-      height="4"
-      color="#4CC3D9">
-  </a-box>
+  <a-entity
+      position="0 1.6 8">
+      <a-camera></a-camera>
+  </a-entity>
 
-  <!-- Bar 2 -->
-  <a-box
-      position="-2 3 -6"
-      width="1"
-      depth="1"
-      height="6"
-      color="#EF2D5E">
-  </a-box>
-
-  <!-- Bar 3 -->
-  <a-box
-      position="0 4 -6"
-      width="1"
-      depth="1"
-      height="8"
-      color="#FFC65D">
-  </a-box>
-
-  <!-- Bar 4 -->
-  <a-box
-      position="2 2.5 -6"
-      width="1"
-      depth="1"
-      height="5"
-      color="#7BC8A4">
-  </a-box>
-
-  <!-- Labels -->
-  <a-text value="AI510"
-          position="-4 0.5 -5"
-          align="center"
-          color="black">
-  </a-text>
-
-  <a-text value="AI511"
-          position="-2 0.5 -5"
-          align="center"
-          color="black">
-  </a-text>
-
-  <a-text value="CS550"
-          position="0 0.5 -5"
-          align="center"
-          color="black">
-  </a-text>
-
-  <a-text value="DS520"
-          position="2 0.5 -5"
-          align="center"
-          color="black">
-  </a-text>
+  <!-- Entire chart -->
+  <a-entity
+      id="chart"
+      csv-bars
+      position="-6 0 -8"
+      scale="1 1 1">
+  </a-entity>
 
 </a-scene>
+
 </body>
 </html>
 ```
