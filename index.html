@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SFBU Enrollment Dashboard</title>
+
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-babia-components/dist/aframe-babia-components.min.js"></script>
+</head>
+
+<body>
+<a-scene>
+
+    <!-- Camera -->
+    <a-entity position="0 1.6 6">
+        <a-camera></a-camera>
+    </a-entity>
+
+    <!-- Light -->
+    <a-light type="ambient" intensity="1"></a-light>
+
+    <!-- Data Source -->
+    <a-entity
+        id="courses"
+        babia-querycsv="url:data/courses.csv">
+    </a-entity>
+
+    <!-- 3D Bar Chart -->
+    <a-entity
+        position="-3 0 -5"
+        babia-bars="
+            from:courses;
+            x_axis:Course;
+            height:Enrollment;
+            legend:true;">
+    </a-entity>
+
+</a-scene>
+</body>
+</html>
