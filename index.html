@@ -1,18 +1,90 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <title>SFBU VR Data Visualization</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 </head>
+
 <body>
 <a-scene>
+
   <a-sky color="#87CEEB"></a-sky>
 
+  <a-camera position="0 1.6 8"></a-camera>
+
+  <!-- Ground -->
+  <a-plane
+      rotation="-90 0 0"
+      width="30"
+      height="30"
+      color="#DDDDDD">
+  </a-plane>
+
+  <!-- Bar 1 -->
   <a-box
-      position="0 1.5 -4"
+      position="-4 2 -6"
+      width="1"
       depth="1"
-      height="1"
-      width="1">
+      height="4"
+      color="#4CC3D9">
   </a-box>
+
+  <!-- Bar 2 -->
+  <a-box
+      position="-2 3 -6"
+      width="1"
+      depth="1"
+      height="6"
+      color="#EF2D5E">
+  </a-box>
+
+  <!-- Bar 3 -->
+  <a-box
+      position="0 4 -6"
+      width="1"
+      depth="1"
+      height="8"
+      color="#FFC65D">
+  </a-box>
+
+  <!-- Bar 4 -->
+  <a-box
+      position="2 2.5 -6"
+      width="1"
+      depth="1"
+      height="5"
+      color="#7BC8A4">
+  </a-box>
+
+  <!-- Labels -->
+  <a-text value="AI510"
+          position="-4 0.5 -5"
+          align="center"
+          color="black">
+  </a-text>
+
+  <a-text value="AI511"
+          position="-2 0.5 -5"
+          align="center"
+          color="black">
+  </a-text>
+
+  <a-text value="CS550"
+          position="0 0.5 -5"
+          align="center"
+          color="black">
+  </a-text>
+
+  <a-text value="DS520"
+          position="2 0.5 -5"
+          align="center"
+          color="black">
+  </a-text>
+
 </a-scene>
 </body>
 </html>
+```
+
