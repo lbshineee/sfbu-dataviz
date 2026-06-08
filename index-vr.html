@@ -1,0 +1,184 @@
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>SFBU VR Data Visualization</title>
+
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+  <script src="https://unpkg.com/aframe-look-at-component@latest/dist/aframe-look-at-component.min.js"></script>
+
+  <script>
+    AFRAME.registerComponent('csv-bars', {
+      init: async function () {
+
+        const response = await fetch('./data/courses.csv');
+
+        if (!response.ok) {
+          console.error("Could not load CSV");
+          return;
+        }
+
+        const text = await response.text();
+
+        const rows = text.trim().split('\n');
+
+        rows.slice(1).forEach((row, i) => {
+
+          const cols = row.split(',');
+
+          const course = cols[0];
+          const value = parseFloat(cols[1]);
+
+          const chart = this.el;
+
+          // Scale enrollment values into VR-friendly heights
+          const height = value / 20;
+
+          // ---------- BAR ----------
+
+          const bar = document.createElement('a-box');
+
+          bar.setAttribute(
+            'position',
+            `${i * 2} ${height / 2} 0`
+          );
+
+          bar.setAttribute('width', 1);
+          bar.setAttribute('depth', 1);
+          bar.setAttribute('height', height);
+
+          bar.setAttribute(
+            'color',
+            `hsl(${i * 35},70%,60%)`
+          );
+
+          chart.appendChild(bar);
+
+          // ---------- VALUE LABEL ----------
+
+          const valueLabel =
+            document.createElement('a-text');
+
+          valueLabel.setAttribute(
+            'value',
+            value
+          );
+
+          valueLabel.setAttribute(
+            'position',
+            `${i * 2} ${height + 0.6} 0`
+          );
+
+          valueLabel.setAttribute(
+            'align',
+            'center'
+          );
+
+          valueLabel.setAttribute(
+            'color',
+            '#111'
+          );
+
+          valueLabel.setAttribute(
+            'scale',
+            '2 2 2'
+          );
+
+          valueLabel.setAttribute(
+            'look-at',
+            '#camera'
+          );
+
+          chart.appendChild(valueLabel);
+
+          // ---------- COURSE LABEL ----------
+
+          const courseLabel =
+            document.createElement('a-text');
+
+          courseLabel.setAttribute(
+            'value',
+            course
+          );
+
+          courseLabel.setAttribute(
+            'position',
+            `${i * 2} 0.4 0.9`
+          );
+
+          courseLabel.setAttribute(
+            'align',
+            'center'
+          );
+
+          courseLabel.setAttribute(
+            'color',
+            '#222'
+          );
+
+          courseLabel.setAttribute(
+            'scale',
+            '1.5 1.5 1.5'
+          );
+
+          courseLabel.setAttribute(
+            'look-at',
+            '#camera'
+          );
+
+          chart.appendChild(courseLabel);
+        });
+      }
+    });
+  </script>
+
+</head>
+
+<body>
+
+<a-scene>
+
+  <!-- Sky -->
+  <a-sky color="#ECECEC"></a-sky>
+
+  <!-- Ground -->
+  <a-plane
+      rotation="-90 0 0"
+      width="100"
+      height="100"
+      color="#DDDDDD">
+  </a-plane>
+
+  <!-- Camera -->
+  <a-entity position="0 1.6 8">
+      <a-camera id="camera"></a-camera>
+  </a-entity>
+
+  <!-- Lighting -->
+  <a-light
+      type="ambient"
+      intensity="1">
+  </a-light>
+
+  <a-light
+      type="directional"
+      intensity="0.8"
+      position="2 4 3">
+  </a-light>
+
+  <!-- Chart -->
+  <a-entity
+      id="chart"
+      csv-bars
+      position="-6 0 -8">
+  </a-entity>
+
+</a-scene>
+
+</body>
+</html>
+```
+
